@@ -1,4 +1,3 @@
-
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
@@ -33,3 +32,5 @@
 (setenv "IPY_TEST_SIMPLE_PROMPT" "1")
 (setq python-shell-interpreter "ipython3"
       python-shell-interpreter-args "-i")
+
+(pyvenv-activate "~/.default-venv")
