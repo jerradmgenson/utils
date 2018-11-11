@@ -31,9 +31,9 @@
 ;; Start and configure Elpy
 (package-initialize)
 (elpy-enable)
-(setq elpy-rpc-python-command "python3")
+(setq elpy-rpc-python-command "python")
 (setenv "IPY_TEST_SIMPLE_PROMPT" "1")
-(setq python-shell-interpreter "ipython3"
+(setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "-i")
 
 (pyvenv-activate "~/.default-venv")
