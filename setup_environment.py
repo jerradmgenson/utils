@@ -23,13 +23,17 @@ _COMMANDS = (('create_venv', 'python3 -m venv ~/.default-venv'),
 _Commands = namedtuple('Commands', [command[0] for command in _COMMANDS])
 COMMANDS = _Commands(*[command[1] for command in _COMMANDS])
 
+GIT_CONFIG = {'user.name': 'Jerrad Genson',
+              'user.email': 'jerradgenson@gmail.com',
+              'core.editor': 'emacs'}
+
 
 def main():
     clargs = parse_command_line()
     if clargs.install_elpy:
-        run(COMMANDS.get_elpy_script, shell=True)
-        run(COMMANDS.install_elpy, shell=True)
-        run(COMMANDS.remove_elpy_script, shell=True)
+        shell(COMMANDS.get_elpy_script)
+        shell(COMMANDS.install_elpy)
+        shell(COMMANDS.remove_elpy_script)
         return
 
     packages = PACKAGES
@@ -37,13 +41,22 @@ def main():
         packages = packages._replace(emacs='emacs')
 
     if not clargs.no_sudo:
-        run('sudo dnf -y install ' + ' '.join(packages), shell=True)
+        command = 'sudo dnf -y install ' + ' '.join(packages)
+        shell(command)
 
     for command in COMMANDS:
-        run(command, shell=True)
+        shell(command)
 
     for pip_package in PIP_PACKAGES:
-        run('~/.default-venv/bin/pip --no-cache-dir install ' + pip_package, shell=True)
+        shell('~/.default-venv/bin/pip --no-cache-dir install ' + pip_package)
+
+    for option, value in GIT_CONFIG.items():
+        shell('git config --global {} {}'.format(option, value))
+
+
+def shell(command):
+    print(command)
+    run(command, shell=True)
 
 
 def parse_command_line():
@@ -51,7 +64,17 @@ def parse_command_line():
     parser.add_argument('-n', '--no-sudo', action='store_true')
     parser.add_argument('-f', '--force-x', action='store_true')
     parser.add_argument('-e', '--install-elpy', action='store_true')
-    return parser.parse_args()
+    clargs = parser.parse_args()
+    if clargs.no_sudo:
+        print('Configuring environment without running sudo commands.')
+
+    if clargs.force_x:
+        print('Installing Emacs with X support, even in a headless environment.')
+
+    if clargs.install_elpy:
+        print('Intalling Elpy only and then exiting.')
+
+    return clargs
 
 
 if __name__ == '__main__':
