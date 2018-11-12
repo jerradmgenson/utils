@@ -16,19 +16,32 @@ PACKAGES = struct('Packages', (('python', 'python3'),
 PIP_PACKAGES = 'rope', 'autopep8', 'yapf', 'black', 'flake8', 'ipython'
 
 COMMANDS = struct('Commands', (('create_venv', 'python3 -m venv ~/.default-venv'),
-                               ('get_elpy_script', 'wget -O "install_elpy.lisp" "https://raw.githubusercontent.com/jerradmgenson/utils/emacs/install_elpy.lisp"'),
+                               ('get_elpy_script', 'wget -O "install_elpy.lisp" "https://raw.githubusercontent.com/jerradmgenson/utils/environment/install_elpy.lisp"'),
                                ('remove_emacsfile', 'rm ~/.emacs'),
                                ('install_elpy', 'emacs --script install_elpy.lisp'),
                                ('remove_elpy_script', 'rm install_elpy.lisp'),
-                               ('get_emacsfile', 'wget -O "{}/.emacs" "https://raw.githubusercontent.com/jerradmgenson/utils/emacs/.emacs"'.format(environ['HOME']))))
+                               ('get_emacsfile', 'wget -O "{}/.emacs" "https://raw.githubusercontent.com/jerradmgenson/utils/environment/.emacs"'.format(environ['HOME']))))
 
 SUDO_COMMANDS = struct('SudoCommands', (('dnf_install', 'dnf -y install ' + ' '.join(PACKAGES)),))
 GIT_CONFIG = {'user.name': 'Jerrad Genson',
               'user.email': 'jerradgenson@gmail.com',
               'core.editor': 'emacs'}
 
-BASH_PROFILE = struct('BashProfile', (('emacs_server', ('emacs --bg-daemon="emacsserver"')),))
+BASH_PROFILE = struct('BashProfile', (('emacs_server', ('emacs --bg-daemon="emacsserver" > /dev/null 2>&1')),))
 BASHRC = struct('BashRC', (('emacs_client', 'alias edit="emacsclient -c -s emacsserver"'),))
+DEFAULT_BASH_PROFILE =\
+    """
+    # ~/.bash_profile: executed by bash for login shells.
+
+    if [ -e /etc/bash.bashrc ] ; then
+    source /etc/bash.bashrc
+    fi
+
+    if [ -e ~/.bashrc ] ; then
+    source ~/.bashrc
+    fi
+
+    """
 
 
 def main():
@@ -58,24 +71,36 @@ def main():
     for option, value in GIT_CONFIG.items():
         shell('git config --global {} {}'.format(option, value))
 
+    bashrc = BASHRC
+    for line in BASH_PROFILE:
+        try:
+            with open(BASH_PROFILE_PATH) as bash_profile:
+                bash_profile_text = bash_profile.read()
+
+        except FileNotFoundError:
+            with open(BASH_PROFILE_PATH, 'w') as bash_profile:
+                bash_profile.write(DEFAULT_BASH_PROFILE)
+
+            bash_profile_text = DEFAULT_BASH_PROFILE
+
+        with open(BASH_PROFILE_PATH, 'a') as bash_profile:
+            if line not in bash_profile_text:
+                print('Writing line to {}: {}'.format(BASH_PROFILE_PATH, line))
+                bash_profile.write(line + '\n')        
+
     for line in BASHRC:
-        with open(BASHRC_PATH) as bashrc:
-            bashrc_text = bashrc.read()
+        try:
+            with open(BASHRC_PATH) as bashrc:
+                bashrc_text = bashrc.read()
+
+        except FileNotFoundError:
+            bashrc_text = ''
 
         with open(BASHRC_PATH, 'a') as bashrc:
             if line not in bashrc_text:
                 print('Writing line to {}: {}'.format(BASHRC_PATH, line))
                 bashrc.write(line + '\n')
-
-    for line in BASH_PROFILE:
-        with open(BASH_PROFILE_PATH) as bash_profile:
-            bash_profile_text = bash_profile.read()
-
-        with open(BASH_PROFILE_PATH, 'a') as bash_profile:
-            if line not in bash_profile_text:
-                print('Writing line to {}: {}'.format(BASH_PROFILE_PATH, line))
-                bash_profile.write(line + '\n')
-
+                
 
 def shell(command):
     print(command)
