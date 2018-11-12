@@ -12,7 +12,7 @@ def struct(name, items):
     return struct_object
 
 
-with open('/etc/os.release') as os_release_file:
+with open('/etc/os-release') as os_release_file:
     OS_RELEASE = os_release_file.read()
 
 
