@@ -163,10 +163,6 @@ def main():
         shell(COMMANDS.install_elpy)
         return
 
-    packages = PACKAGES
-    if clargs.force_x:
-        packages = packages._replace(emacs='emacs')
-
     if not clargs.no_sudo:
         for command in SUDO_COMMANDS:
             shell('sudo ' + command)
