@@ -32,7 +32,7 @@ COMMANDS = struct('Commands', (('create_venv', 'python3 -m venv ~/.default-venv'
                                ('copy_emacsfile', 'cp /tmp/.emacs ~/.emacs'),
                                ('install_elpy', 'emacs --script /tmp/install_elpy.lisp')))
 if 'Ubuntu' in OS_RELEASE:
-    SUDO_COMMANDS = struct('SudoCommands', (('apt_install', 'apt install ' + ' '.join(UBUNTU_PACKAGES)),))
+    SUDO_COMMANDS = struct('SudoCommands', (('apt_install', 'apt -y install ' + ' '.join(UBUNTU_PACKAGES)),))
 
 elif 'Fedora' in OS_RELEASE:
     SUDO_COMMANDS = struct('SudoCommands', (('dnf_install', 'dnf -y install ' + ' '.join(FEDORA_PACKAGES)),))
