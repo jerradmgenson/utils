@@ -7,6 +7,7 @@ from sys import argv
 
 from structures.struct import struct
 
+EDIT = '"emacsclient -c -s emacsserver"'
 BASHRC_PATH = path.join(environ['HOME'], '.bashrc')
 BASH_PROFILE_PATH = path.join(environ['HOME'], '.bash_profile')
 PACKAGES = struct('Packages', (('python', 'python3'),
@@ -25,10 +26,13 @@ COMMANDS = struct('Commands', (('create_venv', 'python3 -m venv ~/.default-venv'
 SUDO_COMMANDS = struct('SudoCommands', (('dnf_install', 'dnf -y install ' + ' '.join(PACKAGES)),))
 GIT_CONFIG = {'user.name': 'Jerrad Genson',
               'user.email': 'jerradgenson@gmail.com',
-              'core.editor': 'emacs'}
+              'core.editor': EDIT}
 
 BASH_PROFILE = struct('BashProfile', (('emacs_server', ('emacs --bg-daemon="emacsserver" > /dev/null 2>&1')),))
-BASHRC = struct('BashRC', (('emacs_client', 'alias edit="emacsclient -c -s emacsserver"'),))
+BASHRC = struct('BashRC', (('emacs_client', 'alias edit="{}"'.format(EDIT)),
+                           ('visual_editor', 'export VISUAL=edit'),
+                           ('editor', 'export EDITOR=edit')))
+
 DEFAULT_BASH_PROFILE =\
     """
     # ~/.bash_profile: executed by bash for login shells.
