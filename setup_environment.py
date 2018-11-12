@@ -12,6 +12,10 @@ def struct(name, items):
     return struct_object
 
 
+with open('/etc/os.release') as os_release_file:
+    OS_RELEASE = os_release_file.read()
+
+
 EDIT = '"emacsclient -c -s emacsserver"'
 BASHRC_PATH = path.join(environ['HOME'], '.bashrc')
 BASH_PROFILE_PATH = path.join(environ['HOME'], '.bash_profile')
@@ -25,8 +29,15 @@ COMMANDS = struct('Commands', (('create_venv', 'python3 -m venv ~/.default-venv'
                                ('remove_emacsfile', 'rm ~/.emacs'),
                                ('copy_emacsfile', 'cp /tmp/.emacs ~/.emacs'),
                                ('install_elpy', 'emacs --script /tmp/install_elpy.lisp')))
+if 'Ubuntu' in OS_RELEASE:
+    SUDO_COMMANDS = struct('SudoCommands', (('apt_install', 'apt install ' + ' '.join(PACKAGES)),))
 
-SUDO_COMMANDS = struct('SudoCommands', (('dnf_install', 'dnf -y install ' + ' '.join(PACKAGES)),))
+elif 'Fedora' in OS_RELEASE:
+    SUDO_COMMANDS = struct('SudoCommands', (('dnf_install', 'dnf -y install ' + ' '.join(PACKAGES)),))
+
+else:
+    SUDO_COMMANDS = tuple()
+
 GIT_CONFIG = {'user.name': 'Jerrad Genson',
               'user.email': 'jerradgenson@gmail.com',
               'core.editor': EDIT}
