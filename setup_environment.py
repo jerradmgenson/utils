@@ -19,10 +19,12 @@ with open('/etc/os-release') as os_release_file:
 EDIT = '"emacsclient -c -s emacsserver"'
 BASHRC_PATH = path.join(environ['HOME'], '.bashrc')
 BASH_PROFILE_PATH = path.join(environ['HOME'], '.bash_profile')
-PACKAGES = struct('Packages', (('python', 'python3'),
-                               ('pip', 'python3-pip'),
-                               ('emacs', 'emacs' if environ.get('DESKTOP_SESSION') or '--force-x' in argv else 'emacs-nox')))
+BASE_PACKAGES = ('python3',
+                 'python3-pip',
+                 'emacs' if environ.get('DESKTOP_SESSION') or '--force-x' in argv else 'emacs-nox')
 
+FEDORA_PACKAGE = BASE_PACKAGES
+UBUNTU_PACKAGES = BASE_PACKAGES + ('python3-venv',)
 PIP_PACKAGES = 'rope', 'autopep8', 'yapf', 'black', 'flake8', 'ipython'
 
 COMMANDS = struct('Commands', (('create_venv', 'python3 -m venv ~/.default-venv'),
@@ -30,10 +32,10 @@ COMMANDS = struct('Commands', (('create_venv', 'python3 -m venv ~/.default-venv'
                                ('copy_emacsfile', 'cp /tmp/.emacs ~/.emacs'),
                                ('install_elpy', 'emacs --script /tmp/install_elpy.lisp')))
 if 'Ubuntu' in OS_RELEASE:
-    SUDO_COMMANDS = struct('SudoCommands', (('apt_install', 'apt install ' + ' '.join(PACKAGES)),))
+    SUDO_COMMANDS = struct('SudoCommands', (('apt_install', 'apt install ' + ' '.join(UBUNTU_PACKAGES)),))
 
 elif 'Fedora' in OS_RELEASE:
-    SUDO_COMMANDS = struct('SudoCommands', (('dnf_install', 'dnf -y install ' + ' '.join(PACKAGES)),))
+    SUDO_COMMANDS = struct('SudoCommands', (('dnf_install', 'dnf -y install ' + ' '.join(FEDORA_PACKAGES)),))
 
 else:
     SUDO_COMMANDS = tuple()
