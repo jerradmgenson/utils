@@ -16,12 +16,13 @@ with open('/etc/os-release') as os_release_file:
     OS_RELEASE = os_release_file.read()
 
 
-EDIT = '"emacsclient -c -s emacsserver"'
+DESKTOP = environ.get('DESKTOP_SESSION')
+EDIT = '"emacsclient -c -s emacsserver"' if DESKTOP else 'emacs'
 BASHRC_PATH = path.join(environ['HOME'], '.bashrc')
 BASH_PROFILE_PATH = path.join(environ['HOME'], '.bash_profile')
 BASE_PACKAGES = ('python3',
                  'python3-pip',
-                 'emacs' if environ.get('DESKTOP_SESSION') or '--force-x' in argv else 'emacs-nox')
+                 'emacs' if DESKTOP or '--force-x' in argv else 'emacs-nox')
 
 FEDORA_PACKAGE = BASE_PACKAGES
 UBUNTU_PACKAGES = BASE_PACKAGES + ('python3-venv',)
@@ -44,7 +45,12 @@ GIT_CONFIG = {'user.name': 'Jerrad Genson',
               'user.email': 'jerradgenson@gmail.com',
               'core.editor': EDIT}
 
-BASH_PROFILE = struct('BashProfile', (('emacs_server', ('emacs --bg-daemon="emacsserver" > /dev/null 2>&1')),))
+if DESKTOP:
+    BASH_PROFILE = struct('BashProfile', (('emacs_server', ('emacs --bg-daemon="emacsserver" > /dev/null 2>&1')),))
+
+else:
+    BASH_PROFILE = tuple()
+
 BASHRC = struct('BashRC', (('emacs_client', 'alias edit={}'.format(EDIT)),
                            ('visual_editor', 'export VISUAL=edit'),
                            ('editor', 'export EDITOR=edit')))
